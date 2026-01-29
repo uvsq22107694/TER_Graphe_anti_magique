@@ -1,59 +1,32 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-// Structure pour représenter un maillon d'une liste chaînée de sommets
-typedef struct SommetNode {
-    struct Sommet* sommet;
-    struct SommetNode* suivant;
-} SommetNode;
+#include <stdbool.h>
 
-// Structure pour représenter un sommet (Vertex)
-typedef struct Sommet {
-    int id;                     // Identifiant unique du sommet
-    struct AreteNode* aretes;   // Liste des arêtes connectées à ce sommet
-    struct Sommet* suivant;     // Suivant dans la liste globale des sommets
-} Sommet;
-
-// Structure pour représenter une arête (Edge) ou hyperarête
-typedef struct Arete {
-    int poids;                  // Poids de l'arête (non unique)
-    SommetNode* sommets;        // Liste des sommets connectés par cette arête
-    struct Arete* suivant;      // Suivant dans la liste globale des arêtes
-} Arete;
-
-// Structure pour représenter un maillon d'une liste chaînée d'arêtes
-typedef struct AreteNode {
-    Arete* arete;
-    struct AreteNode* suivant;
-} AreteNode;
-
-// Structure pour représenter le graphe (hypergraphe)
 typedef struct Graphe {
-    Sommet* listeSommets;       // Tête de la liste des sommets
-    Arete* listeAretes;         // Tête de la liste des arêtes
+    int num_sommets;
+    int** matrice_adj; // Matrice d'adjacence : matrice_adj[i][j] = poids de l'arête (0 si pas d'arête)
 } Graphe;
 
-// Prototypes de fonctions
+// Créer un graphe avec n sommets
+Graphe* creer_graphe(int n);
 
-// Créer un nouveau graphe vide
-Graphe* creer_graphe();
+// Ajouter une arête entre u et v (non orienté). 
+// Le poids n'est pas spécifié ici car "poids par défaut = 0", l'existence est marquée par la symétrie ?
+// Si on veut marquer l'existence, on peut mettre 1. Mais l'utilisateur a dit "poids par défaut = 0".
+// Si l'arête existe avec poids 0, il faut un moyen de le savoir.
+// On va supposer que 0 = pas d'arête. Si on veut une arête de poids 0, c'est ambigu.
+// Pour l'instant on mettra 1 pour dire "existe" lors de la construction structurelle.
+void ajouter_arete(Graphe* g, int u, int v);
 
-// Créer et ajouter un sommet au graphe
-Sommet* ajouter_sommet(Graphe* graphe, int id);
+// Libérer le graphe
+void liberer_graphe(Graphe* g);
 
-// Créer et ajouter une arête au graphe
-Arete* ajouter_arete(Graphe* graphe, int poids);
+// Affiche le graphe
+void afficher_graphe(Graphe* g);
 
-// Ajouter un sommet à une arête existante
-void ajouter_sommet_a_arete(Arete* arete, Sommet* sommet);
-
-// Afficher le contenu du graphe
-void afficher_graphe(Graphe* graphe);
-
-// Libérer la mémoire du graphe
-void liberer_graphe(Graphe* graphe);
-
-// Trouver un sommet par son ID (utilitaire)
-Sommet* trouver_sommet(Graphe* graphe, int id);
+// Teste si le graphe est anti-magique
+// "en testant toutes les configuration de sommet dans ce graphe et en donnant comme poids des arretes la sommet des sommets incident à l'arrete"
+void test_antimagique(Graphe* g);
 
 #endif
