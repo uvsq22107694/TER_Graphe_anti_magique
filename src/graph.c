@@ -13,6 +13,24 @@ Graphe* creer_graphe(int n) {
     return g;
 }
 
+Graphe* creer_graphe_biparti_complet(int m, int n) {
+    if (m <= 0 || n <= 0) return NULL;
+    
+    // Le graphe a m + n sommets
+    // Les sommets 0 à m-1 sont dans l'ensemble A
+    // Les sommets m à m+n-1 sont dans l'ensemble B
+    Graphe* g = creer_graphe(m + n);
+    
+    // Ajouter une arête entre chaque u de A et chaque v de B
+    for (int u = 0; u < m; u++) {
+        for (int v = m; v < m + n; v++) {
+            ajouter_arete(g, u, v);
+        }
+    }
+    
+    return g;
+}
+
 void ajouter_arete(Graphe* g, int u, int v) {
     if (!g || u < 0 || u >= g->num_sommets || v < 0 || v >= g->num_sommets) return;
     // On marque l'arête par 1 (ou autre valeur non nulle) pour dire qu'elle existe structurellement

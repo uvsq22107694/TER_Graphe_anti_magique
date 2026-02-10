@@ -69,8 +69,26 @@ void test_graphe_antimagique() {
     liberer_graphe(g);
 }
 
+void test_k_biparti(int m, int n) {
+    printf("\n=== TEST K_%d,%d (BIPARTI COMPLET) ===\n", m, n);
+    Graphe* g = creer_graphe_biparti_complet(m, n);
+    
+    afficher_graphe(g);
+    
+    if (trouver_etiquetage_antimagique(g)) {
+        printf("Etiquetage anti-magique trouvé pour K_%d,%d !\n", m, n);
+    } else {
+        printf("Pas d'étiquetage anti-magique trouvé pour K_%d,%d.\n", m, n);
+    }
+    
+    visualiser_graphe(g);
+    
+    liberer_graphe(g);
+}
+
 int main() {
-    test_hypergraphe_legacy();
-    test_graphe_antimagique();
+    //test_hypergraphe_legacy();
+    //test_graphe_antimagique();
+    test_k_biparti(3, 3);
     return 0;
 }

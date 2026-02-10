@@ -11,6 +11,9 @@ typedef struct Graphe {
 // Créer un graphe avec n sommets
 Graphe* creer_graphe(int n);
 
+// Créer un graphe biparti complet K_{m,n}
+Graphe* creer_graphe_biparti_complet(int m, int n);
+
 // Ajouter une arête entre u et v (non orienté). 
 // Le poids n'est pas spécifié ici car "poids par défaut = 0", l'existence est marquée par la symétrie ?
 // Si on veut marquer l'existence, on peut mettre 1. Mais l'utilisateur a dit "poids par défaut = 0".
