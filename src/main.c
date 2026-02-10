@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "hypergraph.h"
 #include "graph.h"
+#include "visu.h"
 
 void test_hypergraphe_legacy() {
     printf("\n=== TEST HYPERGRAPHE LEGACY ===\n");
@@ -56,6 +57,8 @@ void test_graphe_antimagique() {
     afficher_graphe(g);
     
     test_antimagique(g);
+
+    visualiser_graphe(g);
     
     liberer_graphe(g);
 }

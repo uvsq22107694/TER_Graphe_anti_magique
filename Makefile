@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude
+CFLAGS = -Wall -Wextra -Iinclude -Iexternal/raylib/include
+LDFLAGS = -Lexternal/raylib/lib -lraylib -lgdi32 -lwinmm
 SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = bin
@@ -11,7 +12,7 @@ TARGET = $(BIN_DIR)/graph_model
 all: directories $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
