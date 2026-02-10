@@ -35,23 +35,30 @@ void visualiser_graphe(Graphe* g) {
                 if (g->matrice_adj[i][j] != 0) {
                     DrawLineV(positions[i], positions[j], GRAY);
                     
-                    // Afficher le poids si > 0 (optionnel, pour l'instant juste la ligne)
-                    /*
-                    Vector2 mid = { (positions[i].x + positions[j].x)/2, (positions[i].y + positions[j].y)/2 };
-                    char buf[10];
+                    // Afficher le poids de l'arête
+                    Vector2 mid = { (positions[i].x + positions[j].x)/2.0f, (positions[i].y + positions[j].y)/2.0f };
+                    char buf[16];
                     sprintf(buf, "%d", g->matrice_adj[i][j]);
-                    DrawText(buf, mid.x, mid.y, 20, BLACK);
-                    */
+                    // Petit fond blanc pour la lisibilité
+                    DrawCircle((int)mid.x, (int)mid.y, 10, WHITE);
+                    DrawText(buf, (int)mid.x - 5, (int)mid.y - 5, 20, DARKGRAY);
                 }
             }
         }
 
         // Dessiner les sommets
         for (int i = 0; i < n; i++) {
-            DrawCircleV(positions[i], 20, BLUE);
+            DrawCircleV(positions[i], 25, BLUE);
+            
+             // Calculer la somme des poids incidents
+            int somme = 0;
+            for(int k=0; k<n; k++) {
+                somme += g->matrice_adj[i][k];
+            }
+
             char buf[16];
-            sprintf(buf, "%d", i);
-            DrawText(buf, (int)positions[i].x - 5, (int)positions[i].y - 5, 20, WHITE);
+            sprintf(buf, "%d", somme);
+            DrawText(buf, (int)positions[i].x - 10, (int)positions[i].y - 10, 20, WHITE);
         }
 
         DrawText("Appuyez sur ESC pour quitter", 10, 10, 20, DARKGRAY);

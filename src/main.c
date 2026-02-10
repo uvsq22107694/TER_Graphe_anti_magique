@@ -3,6 +3,7 @@
 #include "hypergraph.h"
 #include "graph.h"
 #include "visu.h"
+#include "antimagic.h"
 
 void test_hypergraphe_legacy() {
     printf("\n=== TEST HYPERGRAPHE LEGACY ===\n");
@@ -56,7 +57,12 @@ void test_graphe_antimagique() {
 
     afficher_graphe(g);
     
-    test_antimagique(g);
+    // Teste l'étiquetage anti-magique sur les arêtes
+    if (trouver_etiquetage_antimagique(g)) {
+        printf("Etiquetage anti-magique trouvé !\n");
+    } else {
+        printf("Pas d'étiquetage anti-magique trouvé.\n");
+    }
 
     visualiser_graphe(g);
     
