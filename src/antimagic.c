@@ -164,6 +164,72 @@ void etiquetage_glouton_decroissant(Graphe* g) {
     free(assigned);
 }
 
+// Helper pour le tri
+typedef struct {
+    int id;
+    int degre;
+} SommetDegre;
+
+int comparer_degres(const void* a, const void* b) {
+    SommetDegre* sa = (SommetDegre*)a;
+    SommetDegre* sb = (SommetDegre*)b;
+    return sa->degre - sb->degre;
+}
+
+// Implémentation de l'algorithme par degré croissant
+void etiquetage_degre_croissant(Graphe* g) {
+    if (!g) return;
+
+    int n = g->num_sommets;
+
+    // 1. Calculer les degrés
+    SommetDegre* sommets = (SommetDegre*)malloc(n * sizeof(SommetDegre));
+    for (int i = 0; i < n; i++) {
+        sommets[i].id = i;
+        sommets[i].degre = 0;
+        for (int j = 0; j < n; j++) {
+            if (g->matrice_adj[i][j] != 0) {
+                sommets[i].degre++;
+            }
+        }
+    }
+
+    // 2. Trier par degré croissant
+    qsort(sommets, n, sizeof(SommetDegre), comparer_degres);
+
+    // 3. Matrice pour suivre les arêtes déjà pondérées
+    bool** assigned = (bool**)malloc(n * sizeof(bool*));
+    for (int i = 0; i < n; i++) {
+        assigned[i] = (bool*)calloc(n, sizeof(bool));
+    }
+
+    int k = 1; // Poids actuel à attribuer (commence à 1)
+    
+    // 4. Parcourir les sommets triés et assigner les poids croissants
+    for (int i = 0; i < n; i++) {
+        int u = sommets[i].id;
+        
+        // Parcourir les voisins de u
+        // L'ordre des voisins n'est pas spécifié, on prend l'ordre naturel des indices
+        for (int v = 0; v < n; v++) {
+            if (g->matrice_adj[u][v] != 0 && !assigned[u][v]) {
+                g->matrice_adj[u][v] = k;
+                g->matrice_adj[v][u] = k;
+                assigned[u][v] = true;
+                assigned[v][u] = true;
+                k++;
+            }
+        }
+    }
+
+    // Libération
+    for (int i = 0; i < n; i++) {
+        free(assigned[i]);
+    }
+    free(assigned);
+    free(sommets);
+}
+
 bool check_antimagic(Graphe* g) {
     // 1. Calculer les sommes aux sommets
     int n = g->num_sommets;
@@ -230,6 +296,14 @@ bool trouver_etiquetage_antimagique(Graphe* g) {
     if (check_antimagic(g)) {
         ctx.solution_trouvee = true;
         printf("Etiquetage glouton décroissant valide !\n");
+    }
+
+    if (!ctx.solution_trouvee) {
+        etiquetage_degre_croissant(g);
+        if (check_antimagic(g)) {
+            ctx.solution_trouvee = true;
+            printf("Etiquetage par degré croissant valide !\n");
+        }
     }
 
     if (!ctx.solution_trouvee) {
