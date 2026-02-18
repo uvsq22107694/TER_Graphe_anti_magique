@@ -79,6 +79,118 @@ void permuter(Contexte* ctx, int l, int r) {
     }
 }
 
+
+// Implémentation des algorithmes
+
+// Implémentation de l'algorithme glouton décroissant
+void etiquetage_glouton_decroissant(Graphe* g) {
+    if (!g) return;
+
+    int n = g->num_sommets;
+    
+    // 1. Matrice pour suivre les arêtes déjà pondérées
+    bool** assigned = (bool**)malloc(n * sizeof(bool*));
+    for (int i = 0; i < n; i++) {
+        assigned[i] = (bool*)calloc(n, sizeof(bool));
+    }
+
+    // 2. Compter le nombre d'arêtes total (M)
+    int m = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (g->matrice_adj[i][j] != 0) {
+                m++;
+            }
+        }
+    }
+
+    int k = m; // Poids actuel à attribuer
+    int aretes_restantes = m;
+
+    // Boucle principale
+    while (aretes_restantes > 0) {
+        int meilleur_sommet = -1;
+        long long max_score = -1;
+
+        // Chercher le sommet avec le score max parmi ceux ayant des arêtes non pondérées
+        for (int i = 0; i < n; i++) {
+            long long somme_ponderes = 0;
+            int count_non_ponderes = 0;
+
+            for (int j = 0; j < n; j++) {
+                if (g->matrice_adj[i][j] != 0) { // Il y a une arête
+                    if (assigned[i][j]) {
+                        somme_ponderes += g->matrice_adj[i][j];
+                    } else {
+                        count_non_ponderes++;
+                    }
+                }
+            }
+
+            if (count_non_ponderes > 0) {
+                // Score = somme déjà pondérée + (k * nombre non pondérées)
+                long long score = somme_ponderes + (long long)k * count_non_ponderes;
+                
+                if (score > max_score) {
+                    max_score = score;
+                    meilleur_sommet = i;
+                }
+            }
+        }
+
+        if (meilleur_sommet == -1) {
+            break;
+        }
+
+        // Attribuer les poids aux arêtes incidentes non encore pondérées
+        for (int j = 0; j < n; j++) {
+            if (g->matrice_adj[meilleur_sommet][j] != 0 && !assigned[meilleur_sommet][j]) {
+                g->matrice_adj[meilleur_sommet][j] = k;
+                g->matrice_adj[j][meilleur_sommet] = k; // Graphe non orienté
+                
+                assigned[meilleur_sommet][j] = true;
+                assigned[j][meilleur_sommet] = true;
+                
+                k--;
+                aretes_restantes--;
+            }
+        }
+    }
+
+    // Libération de la mémoire
+    for (int i = 0; i < n; i++) {
+        free(assigned[i]);
+    }
+    free(assigned);
+}
+
+bool check_antimagic(Graphe* g) {
+    // 1. Calculer les sommes aux sommets
+    int n = g->num_sommets;
+    int* sommes = (int*)calloc(n, sizeof(int));
+    
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            sommes[i] += g->matrice_adj[i][j];
+        }
+    }
+
+    // 2. Vérifier l'unicité des sommes
+    bool distinct = true;
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (sommes[i] == sommes[j]) {
+                distinct = false;
+                break;
+            }
+        }
+        if (!distinct) break;
+    }
+
+    free(sommes);
+    return distinct;
+}
+
 bool trouver_etiquetage_antimagique(Graphe* g) {
     if (!g) return false;
 
@@ -113,14 +225,21 @@ bool trouver_etiquetage_antimagique(Graphe* g) {
 
     printf("Recherche d'un etiquetage anti-magique pour %d sommets et %d aretes...\n", n, m);
 
-    // 3. Lancer la permutation
-    permuter(&ctx, 0, m - 1);
+    // 3. Étiquetage glouton décroissant
+    etiquetage_glouton_decroissant(g);
+    if (check_antimagic(g)) {
+        ctx.solution_trouvee = true;
+        printf("Etiquetage glouton décroissant valide !\n");
+    }
+
+    if (!ctx.solution_trouvee) {
+        permuter(&ctx, 0, m - 1);
+    }
 
     if (ctx.solution_trouvee) {
         printf("Succes ! Etiquetage trouve.\n");
     } else {
         printf("Echec. Aucun etiquetage trouve.\n");
-        // Optionnel : remettre les poids à 1 ou 0 ?
     }
 
     free(aretes);

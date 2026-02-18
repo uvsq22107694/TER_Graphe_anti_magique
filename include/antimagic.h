@@ -16,4 +16,15 @@
  */
 bool trouver_etiquetage_antimagique(Graphe* g);
 
+/**
+ * Applique un étiquetage glouton décroissant.
+ * Algorithme :
+ * 1. k = M (nombre d'arêtes)
+ * 2. Tant que k > 0 :
+ *    - Choisir le sommet v maximisant : (somme des poids des arêtes adjacentes déjà pondérées) + (k * nombre d'arêtes adjacentes non pondérées)
+ *    - Assigner aux arêtes incidentes non pondérées de v les poids k, k-1, ...
+ *    - Mettre à jour k
+ */
+void etiquetage_glouton_decroissant(Graphe* g);
+
 #endif
