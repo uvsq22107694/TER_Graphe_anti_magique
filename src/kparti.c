@@ -52,3 +52,36 @@ int generer_aretes_internes_B(int* tailles_partitions, int k, aGraphe* g, Sommet
     
     return q; // Retourne le nombre total d'arêtes créées
 }
+
+/*
+ * Fonction de comparaison compatible avec qsort.
+ * Compare la valeur accumulée de deux sommets.
+ */
+int comparer_sommets(const void* a, const void* b) {
+    // a et b sont des pointeurs vers les éléments du tableau, 
+    // qui sont eux-mêmes des pointeurs de Sommet (Sommet**)
+    Sommet* sommetA = *(Sommet**)a;
+    Sommet* sommetB = *(Sommet**)b;
+    
+    // Si l'un des sommets est NULL, on le place à la fin (par sécurité)
+    if (sommetA == NULL && sommetB == NULL) return 0;
+    if (sommetA == NULL) return 1;
+    if (sommetB == NULL) return -1;
+    
+    // Comparaison par ordre croissant de la valeur
+    if (sommetA->valeur < sommetB->valeur) return -1;
+    if (sommetA->valeur > sommetB->valeur) return 1;
+    return 0; // Valeurs égales
+}
+
+/*
+ * Trie le tableau sommets_B par ordre de poids croissant en utilisant qsort.
+ * Cela permettra d'avoir la suite u_1, u_2, ..., u_m du Lemme 5.2.
+ */
+void trier_sommets_B(Sommet** sommets_B, int m) {
+    if (sommets_B == NULL || m <= 1) {
+        return; // Rien à trier
+    }
+    
+    qsort(sommets_B, m, sizeof(Sommet*), comparer_sommets);
+}

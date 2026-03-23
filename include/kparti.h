@@ -20,4 +20,17 @@
  */
 int generer_aretes_internes_B(int* tailles_partitions, int k, aGraphe* g, Sommet** tous_sommets, int start_label);
 
+/*
+ * Fonction de comparaison pour qsort.
+ * Compare l'attribut 'valeur' de deux pointeurs vers Sommet.
+ */
+int comparer_sommets(const void* a, const void* b);
+
+/*
+ * Trie un tableau de pointeurs de Sommet par ordre croissant de leur 'valeur'.
+ * - sommets_B : Le tableau de sommets à trier (ex: les sommets de l'ensemble B)
+ * - m : Le nombre d'éléments dans le tableau
+ */
+void trier_sommets_B(Sommet** sommets_B, int m);
+
 #endif // KPARTI_H
