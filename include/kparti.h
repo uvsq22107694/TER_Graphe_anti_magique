@@ -33,4 +33,14 @@ int comparer_sommets(const void* a, const void* b);
  */
 void trier_sommets_B(Sommet** sommets_B, int m);
 
+/*
+ * Fonction principale pour implémenter le Lemme 5.2 (Graphes complets k-partis).
+ * Suppose que le tableau tailles_partitions est trié par ordre croissant.
+ * La partition 0 est A, et les partitions 1 à k-1 forment l'ensemble B.
+ * 
+ * Retourne un pointeur vers le nouveau graphe antimagique généré et initialise 
+ * out_tableau_sommets avec le tableau global de tous les sommets.
+ */
+aGraphe* construire_graphe_kparti(int* tailles_partitions, int k, Sommet*** out_tableau_sommets);
+
 #endif // KPARTI_H

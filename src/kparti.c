@@ -85,3 +85,91 @@ void trier_sommets_B(Sommet** sommets_B, int m) {
     
     qsort(sommets_B, m, sizeof(Sommet*), comparer_sommets);
 }
+
+/*
+ * Implémentation du Lemme 5.2 de N. Alon.
+ */
+aGraphe* construire_graphe_kparti(int* tailles_partitions, int k, Sommet*** out_tableau_sommets) {
+    if (tailles_partitions == NULL || k < 2 || out_tableau_sommets == NULL) {
+        return NULL;
+    }
+
+    int n_1 = tailles_partitions[0]; // Taille de la partition A
+    int m = 0;                       // Taille de l'ensemble B
+    for (int p = 1; p < k; p++) {
+        m += tailles_partitions[p];
+    }
+
+    // 1. Calcul du nombre total d'arêtes (produit des tailles deux à deux)
+    int nb_aretes = 0;
+    for (int x = 0; x < k - 1; x++) {
+        for (int y = x + 1; y < k; y++) {
+            nb_aretes += tailles_partitions[x] * tailles_partitions[y];
+        }
+    }
+
+    // 2. Allocation globale des sommets
+    int nb_total_sommets = n_1 + m;
+    Sommet** tous_sommets = (Sommet**)calloc(nb_total_sommets, sizeof(Sommet*));
+    if (tous_sommets == NULL) return NULL;
+    
+    for (int i = 0; i < nb_total_sommets; i++) {
+        tous_sommets[i] = creer_sommet(i + 1);
+    }
+    *out_tableau_sommets = tous_sommets;
+
+    // 3. Création du graphe
+    aGraphe* g = creer_graphe(nb_total_sommets, nb_aretes);
+    if (g == NULL) {
+        // En cas d'erreur de mémoire, on devrait libérer tous_sommets, mais on suppose un flux idéal
+        return NULL;
+    }
+
+    // 4. Arêtes internes de B (labels allant de 1 à q)
+    int q = generer_aretes_internes_B(tailles_partitions, k, g, tous_sommets, 1);
+    if (q < 0) return NULL; // Gestion d'erreur
+
+    // 5. Calculer les sommes partielles (poids provisoires)
+    calculer_sommes_sommets(g, tous_sommets);
+
+    // 6. Extraire et trier les sommets de B pour obtenir la séquence u_1, ..., u_m
+    Sommet** sommets_B = (Sommet**)malloc(m * sizeof(Sommet*));
+    if (sommets_B == NULL) return NULL;
+    
+    for (int j = 0; j < m; j++) {
+        sommets_B[j] = tous_sommets[n_1 + j];
+    }
+    
+    trier_sommets_B(sommets_B, m);
+
+    // 7. Relier la partition A à l'ensemble B avec la construction magique
+    for (int i = 1; i <= n_1; i++) {
+        for (int j = 1; j <= m; j++) {
+            int L;
+            
+            if (j % 2 != 0) { // j est impair
+                L = (i - 1) * m + j + q;
+            } else { // j est pair
+                if (m % 2 == 0 && j == m) { // Exception pour le dernier élément si m est pair
+                    L = i * m + q;
+                } else { // Cas pair standard
+                    L = (n_1 - i) * m + j + q;
+                }
+            }
+            
+            // Le sommet dans A est le sommet global à l'index i-1
+            Sommet* v_i = tous_sommets[i - 1]; 
+            // Le sommet dans B est le sommet trié à l'index j-1
+            Sommet* u_j = sommets_B[j - 1];
+            
+            Sommet* arete_sommets[2] = { v_i, u_j };
+            int label_index = L - 1;
+            
+            assigner_aretes_au_label(g, label_index, 2, arete_sommets);
+        }
+    }
+
+    free(sommets_B); // Nettoyage du tableau temporaire
+
+    return g;
+}
