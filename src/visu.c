@@ -29,41 +29,45 @@ void visualiser_agraphe(aGraphe* g, Sommet** sommets, int nb_sommets) {
 
         // Dessiner les arêtes et leurs poids
         for (int i = 0; i < g->n; i++) {
-            LienArrete label = g->labels[i];
             int poids = i + 1; // Le label commence à 1
             
-            // Gérer toutes les connexions pour chaque hyper-arête (souvent juste 2 sommets)
-            if (label.nb_sommets >= 2) {
-                for (int j = 0; j < label.nb_sommets - 1; j++) {
-                    for (int k = j + 1; k < label.nb_sommets; k++) {
-                        // Retrouver l'index dans le tableau global pour choper la Position
-                        int idx1 = -1, idx2 = -1;
-                        for (int s = 0; s < nb_sommets; s++) {
-                            if (sommets[s]->id == label.sommets[j]->id) idx1 = s;
-                            if (sommets[s]->id == label.sommets[k]->id) idx2 = s;
-                        }
-                        
-                        if (idx1 != -1 && idx2 != -1) {
-                            DrawLineV(positions[idx1], positions[idx2], GRAY);
+            // Gérer toutes les connexions pour chaque hyper-arête
+            // Parcourir toutes les paires de sommets possibles connectées à cette arête
+            for (int j = 0; j < g->nb_sommets - 1; j++) {
+                if (g->matrice_incidence[i][j] == 1) {
+                    for (int k = j + 1; k < g->nb_sommets; k++) {
+                        if (g->matrice_incidence[i][k] == 1) {
+                            // On sait que les sommets connectés sont aux indices j et k dans le tableau 'sommets'
+                            // car on a assumé: indice_matrice = id - 1, et le tableau 'sommets' contient tous les sommets
+                            // dans le bon ordre ou du moins on peut utiliser la recherche pour être sûr
+                            int idx1 = -1, idx2 = -1;
+                            for (int s = 0; s < nb_sommets; s++) {
+                                if (sommets[s]->id - 1 == j) idx1 = s;
+                                if (sommets[s]->id - 1 == k) idx2 = s;
+                            }
                             
-                            // Affichage du poids de l'arête (au centre de l'arête)
-                            Vector2 p1 = positions[idx1];
-                            Vector2 p2 = positions[idx2];
-                            
-                            // Décaler si i pair ou impair pour éviter trop de chevauchements
-                            float t = 0.5f; 
-                            if (i % 3 == 0) t = 0.4f;
-                            else if (i % 3 == 1) t = 0.6f;
+                            if (idx1 != -1 && idx2 != -1) {
+                                DrawLineV(positions[idx1], positions[idx2], GRAY);
+                                
+                                // Affichage du poids de l'arête (au centre de l'arête)
+                                Vector2 p1 = positions[idx1];
+                                Vector2 p2 = positions[idx2];
+                                
+                                // Décaler si i pair ou impair pour éviter trop de chevauchements
+                                float t = 0.5f; 
+                                if (i % 3 == 0) t = 0.4f;
+                                else if (i % 3 == 1) t = 0.6f;
 
-                            Vector2 labelPos = { p1.x + (p2.x - p1.x) * t, p1.y + (p2.y - p1.y) * t };
-                            char buf[16];
-                            sprintf(buf, "%d", poids);
-                            
-                            int textWidth = MeasureText(buf, 20);
-                            int bgRadius = (textWidth > 16) ? (textWidth / 2 + 5) : 14;
+                                Vector2 labelPos = { p1.x + (p2.x - p1.x) * t, p1.y + (p2.y - p1.y) * t };
+                                char buf[16];
+                                sprintf(buf, "%d", poids);
+                                
+                                int textWidth = MeasureText(buf, 20);
+                                int bgRadius = (textWidth > 16) ? (textWidth / 2 + 5) : 14;
 
-                            DrawCircle((int)labelPos.x, (int)labelPos.y, (float)bgRadius, LIGHTGRAY);
-                            DrawText(buf, (int)labelPos.x - textWidth / 2, (int)labelPos.y - 10, 20, BLACK);
+                                DrawCircle((int)labelPos.x, (int)labelPos.y, (float)bgRadius, LIGHTGRAY);
+                                DrawText(buf, (int)labelPos.x - textWidth / 2, (int)labelPos.y - 10, 20, BLACK);
+                            }
                         }
                     }
                 }

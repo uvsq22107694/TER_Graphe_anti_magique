@@ -172,7 +172,7 @@ aGraphe* construire_graphe_biparti_antimagique(int m, int n, Sommet*** out_table
 
     // 4. Initialisation du graphe (le nombre d'arêtes = m * n)
     int nb_aretes = m * n;
-    aGraphe* graphe = creer_graphe(nb_aretes);
+    aGraphe* graphe = creer_graphe(nb_total_sommets, nb_aretes);
     if (graphe == NULL) {
         liberer_matrice(matrice, m);
         return NULL; // Erreur déjà affichée dans creer_graphe

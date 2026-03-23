@@ -22,8 +22,8 @@ int main() {
     tous_les_sommets[1] = creer_sommet(2); // v2
     tous_les_sommets[2] = creer_sommet(3); // v3
 
-    // 3. Création du graphe possédant `nb_aretes` (2 ici)
-    aGraphe* graphe = creer_graphe(nb_aretes);
+    // 3. Création du graphe possédant `nb_aretes` (2 ici) et `nb_sommets` (3 ici)
+    aGraphe* graphe = creer_graphe(nb_sommets, nb_aretes);
     if (graphe == NULL) {
         return EXIT_FAILURE; // Erreur d'allocation gérée dans la fonction
     }
@@ -43,7 +43,7 @@ int main() {
 
     // 5. Moteur mathématique : Calcul des sommes
     printf("--- Calcul des sommes d'etiquettes ---\n");
-    calculer_sommes_sommets(graphe);
+    calculer_sommes_sommets(graphe, tous_les_sommets);
 
     // Affichage des résultats des sommes pour chaque sommet
     for (int i = 0; i < nb_sommets; i++) {
@@ -77,7 +77,7 @@ int main() {
         
         // 2. Moteur mathématique : Calcul des sommes
         printf("--- Calcul des sommes d'etiquettes pour le Graphe Biparti K_{%d,%d} ---\n", m, n);
-        calculer_sommes_sommets(graphe_biparti);
+        calculer_sommes_sommets(graphe_biparti, sommets_bipartis);
 
         // Affichage des résultats des sommes pour chaque sommet
         for (int i = 0; i < nb_total_sommets; i++) {

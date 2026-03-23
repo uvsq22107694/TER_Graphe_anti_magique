@@ -10,23 +10,15 @@ typedef struct Sommet {
 } Sommet;
 
 /*
- * Structure qui représente le lien créé par une arête (ou hyper-arête).
- * Elle contient un tableau dynamique d'adresses (pointeurs) vers les sommets qu'elle relie.
- * Cela permet de représenter des graphes classiques (2 sommets) ou des hypergraphes (plus de 2 sommets).
- */
-typedef struct LienArrete {
-    int nb_sommets;     // Nombre de sommets reliés par cette arête/hyper-arête
-    Sommet** sommets;   // Tableau dynamique de pointeurs vers les sommets
-} LienArrete;
-
-/*
  * Structure principale aGraphe.
- * Contient un tableau "labels" de taille n, qui associe à chaque label (de 1 à n) l'arête correspondante.
+ * Contient une matrice d'incidence sous forme de tableau de pointeurs de colonnes.
+ * Cela permet de facilement permuter les arêtes en échangeant leurs pointeurs.
  */
 typedef struct aGraphe {
-    int n;              // Le nombre d'arêtes (et donc la valeur maximale du label)
-    LienArrete* labels; // Tableau dynamique. La case d'index i (de 0 à n-1) représentera l'arête de label i+1.
-                        // Chaque case fait le lien vers les sommets reliés.
+    int nb_sommets;          // Nombre total de sommets dans le graphe
+    int n;                   // Le nombre d'arêtes (et donc la valeur maximale du label)
+    int** matrice_incidence; // matrice_incidence[i][j] = 1 si le sommet j (id j+1) appartient à l'arête i.
+                             // La case d'index i (de 0 à n-1) représente l'arête de label i+1.
 } aGraphe;
 
 /*
@@ -39,7 +31,7 @@ Sommet* creer_sommet(int id);
  * Fonction pour créer un graphe avec un tableau de n arêtes/hyper-arêtes.
  * Retourne un pointeur vers aGraphe, ou NULL en cas d'échec d'allocation.
  */
-aGraphe* creer_graphe(int n);
+aGraphe* creer_graphe(int nb_sommets, int n);
 
 /*
  * Assigne les sommets liés au label spécifique de l'arête (ou hyper-arête).
@@ -51,7 +43,7 @@ int assigner_aretes_au_label(aGraphe* g, int label_index, int nb_sommets, Sommet
  * Parcourt toutes les arêtes, et pour chacune, ajoute l'index + 1 à la valeur
  * de chaque sommet qui lui est lié. (Remet à 0 les valeurs avant de calculer).
  */
-void calculer_sommes_sommets(aGraphe* g);
+void calculer_sommes_sommets(aGraphe* g, Sommet** tous_les_sommets);
 
 /*
  * Vérifie si les sommes calculées dans les sommets sont toutes uniques.

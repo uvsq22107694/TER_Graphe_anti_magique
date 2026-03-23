@@ -26,7 +26,7 @@ Sommet* creer_sommet(int id) {
  * Fonction pour créer un graphe avec un tableau de n arêtes/hyper-arêtes.
  * Retourne un pointeur vers aGraphe, ou NULL en cas d'échec d'allocation.
  */
-aGraphe* creer_graphe(int n) {
+aGraphe* creer_graphe(int nb_sommets, int n) {
     // 1. Allocation de la structure principale du graphe
     aGraphe* g = (aGraphe*)malloc(sizeof(aGraphe));
     if (g == NULL) {
@@ -34,20 +34,27 @@ aGraphe* creer_graphe(int n) {
         return NULL;
     }
     
+    g->nb_sommets = nb_sommets;
     g->n = n;
     
-    // 2. Allocation du tableau dynamique des labels (LienArrete)
-    g->labels = (LienArrete*)malloc(n * sizeof(LienArrete));
-    if (g->labels == NULL) {
-        fprintf(stderr, "Erreur d'allocation memoire pour les labels (LienArrete).\n");
-        free(g); // En cas d'erreur de la deuxième allocation, on doit libérer la première !
+    // 2. Allocation du tableau dynamique des colonnes (arêtes)
+    g->matrice_incidence = (int**)malloc(n * sizeof(int*));
+    if (g->matrice_incidence == NULL) {
+        fprintf(stderr, "Erreur d'allocation memoire pour la matrice.\n");
+        free(g);
         return NULL;
     }
     
-    // 3. Initialisation rigoureusement à "vide" (0 et NULL) pour chaque case
+    // 3. Initialisation rigoureusement à "vide" (0) pour chaque case
     for (int i = 0; i < n; i++) {
-        g->labels[i].nb_sommets = 0;
-        g->labels[i].sommets = NULL;
+        g->matrice_incidence[i] = (int*)calloc(nb_sommets, sizeof(int));
+        if (g->matrice_incidence[i] == NULL) {
+            fprintf(stderr, "Erreur d'allocation pour la colonne %d.\n", i);
+            for (int k = 0; k < i; k++) free(g->matrice_incidence[k]);
+            free(g->matrice_incidence);
+            free(g);
+            return NULL;
+        }
     }
     
     return g;
@@ -80,20 +87,17 @@ int assigner_aretes_au_label(aGraphe* g, int label_index, int nb_sommets, Sommet
         return -1;
     }
 
-    // 2. Allouer la mémoire pour le tableau de pointeurs vers les sommets liés à cette arête
-    g->labels[label_index].sommets = (Sommet**)malloc(nb_sommets * sizeof(Sommet*));
-    if (g->labels[label_index].sommets == NULL) {
-        fprintf(stderr, "Erreur d'allocation memoire pour les sommets de l'arete d'index %d.\n", label_index);
-        return -1; // Échec d'allocation
-    }
-    
-    // 3. Copier les pointeurs du tableau passé en argument
+    // 2. Assigner 1 dans la matrice d'incidence pour chaque sommet lié
+    // On suppose que l'id des sommets va de 1 à g->nb_sommets, donc l'index est id - 1
     for (int i = 0; i < nb_sommets; i++) {
-        g->labels[label_index].sommets[i] = sommets_lies[i];
+        int v_index = sommets_lies[i]->id - 1;
+        if (v_index >= 0 && v_index < g->nb_sommets) {
+            g->matrice_incidence[label_index][v_index] = 1;
+        } else {
+            fprintf(stderr, "Erreur : ID de sommet %d invalide par rapport au nombre max %d.\n", sommets_lies[i]->id, g->nb_sommets);
+            return -1;
+        }
     }
-    
-    // 4. Mettre à jour le nombre de sommets pour cette arête spécifique
-    g->labels[label_index].nb_sommets = nb_sommets;
     
     return 0; // Succès
 }
@@ -102,15 +106,13 @@ int assigner_aretes_au_label(aGraphe* g, int label_index, int nb_sommets, Sommet
  * Fonction pour parcourir toutes les arêtes et calculer la valeur de chaque sommet.
  * La valeur ajoutée correspond au label de l'arête (index + 1).
  */
-void calculer_sommes_sommets(aGraphe* g) {
-    if (g == NULL) return;
+void calculer_sommes_sommets(aGraphe* g, Sommet** tous_les_sommets) {
+    if (g == NULL || tous_les_sommets == NULL) return;
 
-    // 1. Remise à zéro des valeurs de tous les sommets liés présents dans le graphe
-    for (int i = 0; i < g->n; i++) {
-        for (int j = 0; j < g->labels[i].nb_sommets; j++) {
-            if (g->labels[i].sommets[j] != NULL) {
-                g->labels[i].sommets[j]->valeur = 0;
-            }
+    // 1. Remise à zéro des valeurs de tous les sommets
+    for (int v = 0; v < g->nb_sommets; v++) {
+        if (tous_les_sommets[v] != NULL) {
+            tous_les_sommets[v]->valeur = 0;
         }
     }
 
@@ -118,9 +120,9 @@ void calculer_sommes_sommets(aGraphe* g) {
     for (int i = 0; i < g->n; i++) {
         int valeur_etiquette = i + 1; // La valeur de l'étiquette commence à 1
         
-        for (int j = 0; j < g->labels[i].nb_sommets; j++) {
-            if (g->labels[i].sommets[j] != NULL) {
-                g->labels[i].sommets[j]->valeur += valeur_etiquette;
+        for (int v = 0; v < g->nb_sommets; v++) {
+            if (g->matrice_incidence[i][v] == 1 && tous_les_sommets[v] != NULL) {
+                tous_les_sommets[v]->valeur += valeur_etiquette;
             }
         }
     }
@@ -186,16 +188,15 @@ int est_antimagique(Sommet** tableau_tous_les_sommets, int nb_total_sommets) {
 void liberer_graphe(aGraphe* g, Sommet** tableau_tous_les_sommets, int nb_total_sommets) {
     // Il est toujours bon de s'assurer que le pointeur n'est pas NULL avant de le manipuler
     if (g != NULL) {
-        if (g->labels != NULL) {
-            // 1. Libérer le tableau interne des sommets (adresses) dans chaque LienArrete !!
-            // On ne libère pas les vrais sommets ici, seulement les tableaux de pointeurs.
+        if (g->matrice_incidence != NULL) {
+            // 1. Libérer le tableau interne des colonnes
             for (int i = 0; i < g->n; i++) {
-                if (g->labels[i].sommets != NULL) {
-                    free(g->labels[i].sommets); 
+                if (g->matrice_incidence[i] != NULL) {
+                    free(g->matrice_incidence[i]); 
                 }
             }
-            // 2. Libérer le grand tableau "labels" (qui contient les LienArrete)
-            free(g->labels);
+            // 2. Libérer le grand tableau "matrice_incidence"
+            free(g->matrice_incidence);
         }
         // 3. Enfin, on libère la structure elle-même aGraphe
         free(g);
