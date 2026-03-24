@@ -12,4 +12,14 @@ void tester_biparti(int m, int n);
  */
 void lancer_batterie_biparti();
 
+/*
+ * Teste la propriété antimagique sur un graphe k-parti.
+ */
+void tester_kparti(int* tailles, int k);
+
+/*
+ * Lance une série de tests sur différents graphes k-partis.
+ */
+void lancer_batterie_kparti();
+
 #endif // TEST_BATTERIE_H

@@ -97,7 +97,7 @@ void resoudre_collision_matrice(int** matrice, int m, int n) {
         int temp; // Variable pour effectuer l'échange
         
         // Règle 1 : La ligne en collision est la première (index 0)
-        if (i == 0 && m >= 3) {
+        if (i == 0) {
             // Échange matrice[1][0] et matrice[0][0]
             temp = matrice[1][0];
             matrice[1][0] = matrice[0][0];

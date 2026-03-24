@@ -47,3 +47,56 @@ void lancer_batterie_biparti() {
     tester_biparti(10, 15);
     printf("================================================\n");
 }
+
+/*
+ * Fonction utilitaire de test pour les graphes k-partis.
+ */
+void tester_kparti(int* tailles, int k) {
+    int total_sommets = 0;
+    for (int i = 0; i < k; i++) {
+        total_sommets += tailles[i];
+    }
+    
+    printf("[TEST K-PARTI] k=%d avec un total de %d sommets.\n", k, total_sommets);
+    
+    Sommet** tableau_sommets = NULL;
+    aGraphe* g = construire_graphe_kparti(tailles, k, &tableau_sommets);
+    
+    if (g == NULL || tableau_sommets == NULL) {
+        printf("[ECHEC] Erreur lors de la creation du graphe.\n");
+        return;
+    }
+    
+    calculer_sommes_sommets(g, tableau_sommets);
+    
+    int est_am = est_antimagique(tableau_sommets, total_sommets);
+    
+    if (est_am == 1) {
+        printf("[SUCCES] Le graphe est antimagique !\n");
+    } else {
+        printf("[ECHEC] Collision detectee ou echec de verification !\n");
+    }
+    
+    liberer_graphe(g, tableau_sommets, total_sommets);
+}
+
+/*
+ * Lance une batterie de tests k-partis.
+ */
+void lancer_batterie_kparti() {
+    printf("\n==== BATTERIE DE TESTS K-PARTIS (Lemme 5.2) ====\n");
+    
+    // Test 1 : Un graphe 3-parti avec les tailles {2, 3, 4}
+    int tailles1[] = {2, 3, 4};
+    tester_kparti(tailles1, 3);
+    
+    // Test 2 : Un graphe 4-parti équilibré avec les tailles {2, 2, 2, 2}
+    int tailles2[] = {2, 2, 2, 2};
+    tester_kparti(tailles2, 4);
+    
+    // Test 3 : Un graphe 4-parti asymétrique avec les tailles {3, 5, 7, 9}
+    int tailles3[] = {3, 5, 7, 9};
+    tester_kparti(tailles3, 4);
+    
+    printf("================================================\n");
+}

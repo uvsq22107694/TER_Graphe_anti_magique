@@ -3,8 +3,19 @@
 #include "../include/agrah.h"
 #include "../include/biparti.h"
 #include "../include/visu.h"
+#include "../include/test_batterie.h"
 
 int main() {
+    printf("\n=== DÉBUT DES TESTS D'ÉTIQUETAGE ANTIMAGIQUE ===\n");
+    
+    lancer_batterie_biparti();
+    lancer_batterie_kparti();
+    
+    printf("\n=== FIN DES TESTS ===\n");
+
+#if 0
+    // --- ANCIEN CODE (INCLUANT LA PARTIE GRAPHIQUE) ---
+
     // 1. Initialisation des variables pour le graphe simple
     int nb_sommets = 3;
     int nb_aretes = 2; // Graphe chemin simple: v1 - v2 - v3
@@ -105,6 +116,8 @@ int main() {
     }
 
     printf("\nNettoyage de la memoire et fin propre.\n");
+#endif
 
     return EXIT_SUCCESS;
 }
+
