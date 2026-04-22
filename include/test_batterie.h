@@ -22,4 +22,9 @@ void tester_kparti(int* tailles, int k);
  */
 void lancer_batterie_kparti();
 
+/*
+ * Lance une série de tests empiriques sur des hypergraphes (calculs et swaps).
+ */
+void lancer_batterie_hypergraphe();
+
 #endif // TEST_BATTERIE_H
