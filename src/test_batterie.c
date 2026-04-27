@@ -4,9 +4,10 @@
 #include "../include/agrah.h"
 #include "../include/biparti.h"
 #include "../include/kparti.h"
+#include "../include/hyper_kparti.h"
+#include "../include/test_batterie.h"
 #include "../include/hypergraphe.h"
 #include "../include/algo_antimagique.h"
-#include "../include/test_batterie.h"
 
 /*
  * Fonction utilitaire de test pour les graphes bipartis.
@@ -49,6 +50,61 @@ void lancer_batterie_biparti() {
     tester_biparti(4, 4);
     tester_biparti(10, 15);
     printf("================================================\n");
+}
+
+/*
+ * Fonction utilitaire de test pour les hypergraphes k-partis.
+ */
+void tester_hyper_kparti(int k, int n) {
+    printf("[TEST HYPER K-PARTI] k=%d, n=%d... ", k, n);
+    
+    HyperGrapheKParti* h = construire_hypergraphe_kparti(k, n);
+    
+    if (h == NULL || h->g == NULL || h->sommets == NULL) {
+        printf("[ECHEC] Erreur lors de la creation de l'hypergraphe.\n");
+        return;
+    }
+    
+    int total_sommets = k * n;
+    int M = 1;
+    for (int i = 0; i < k; i++) M *= n;
+    
+    // Verifications basiques
+    if (h->g->nb_sommets == total_sommets && h->g->n == M) {
+        printf("[SUCCES] Structure creee avec %d sommets et %d hyper-aretes.\n", total_sommets, M);
+        
+        // // Affichage optionnel pour verifier visuellement les 27 arêtes de l'exemple 3,3
+        // if (k == 4 && n == 2) {
+        //     printf("\n--- Affichage des hyper-aretes pour H_{3,3} ---\n");
+        //     for(int i = 0; i < h->g->n; i++) {
+        //         printf("  Hyper-arete %2d (Label %2d) : {", i, i + 1);
+        //         int first = 1;
+        //         for(int j = 0; j < h->g->nb_sommets; j++) {
+        //             if (h->g->matrice_incidence[i][j] == 1) {
+        //                 if (!first) printf(", ");
+        //                 printf("V%d", h->sommets[j]->id);
+        //                 first = 0;
+        //             }
+        //         }
+        //         printf("}\n");
+        //     }
+        // }
+    } else {
+        printf("[ECHEC] Dimensions incorrectes. Sommets: %d (attendu %d), Aretes: %d (attendu %d).\n", 
+               h->g->nb_sommets, total_sommets, h->g->n, M);
+    }
+    
+    liberer_hypergraphe(h);
+}
+
+/*
+ * Lance une batterie de tests hypergraphes k-partis.
+ */
+void lancer_batterie_hyper_kparti() {
+    printf("\n==== BATTERIE DE TESTS HYPERGRAPHES K-PARTIS ====\n");
+    tester_hyper_kparti(4, 2); // Petit exemple pour valider que ça ne plante pas
+    tester_hyper_kparti(3, 3); // L'exemple dont on a parle avec affichage complet
+    printf("=================================================\n");
 }
 
 /*
@@ -139,16 +195,14 @@ void lancer_batterie_hypergraphe() {
             backup_incidence[i] = g->matrice_incidence[i];
         }
         
-        void reset_matrice() {
-            for (int i = 0; i < n; i++) g->matrice_incidence[i] = backup_incidence[i];
-        }
+        #define RESET_MATRICE() do { for (int i = 0; i < n; i++) g->matrice_incidence[i] = backup_incidence[i]; } while(0)
         
         int nb_swaps = 0;
         clock_t start, end;
         double temps;
         
         // --- 1. Algo Naif Aleatoire ---
-        reset_matrice();
+        RESET_MATRICE();
         start = clock();
         int res_alea = algo_aleatoire(g, sommets, 50000, &nb_swaps);
         end = clock();
@@ -160,7 +214,7 @@ void lancer_batterie_hypergraphe() {
         }
         
         // --- 2. Algo Force Brute ---
-        reset_matrice();
+        RESET_MATRICE();
         start = clock();
         int res_fb = algo_force_brute(g, sommets, &nb_swaps);
         end = clock();
@@ -174,7 +228,7 @@ void lancer_batterie_hypergraphe() {
         }
         
         // --- 3. Algo Heuristique ---
-        reset_matrice();
+        RESET_MATRICE();
         start = clock();
         int res_heu = algo_heuristique(g, sommets, 50000, &nb_swaps);
         end = clock();

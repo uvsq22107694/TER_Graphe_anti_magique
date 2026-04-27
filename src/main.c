@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/agrah.h"
-#include "../include/biparti.h"
-#include "../include/visu.h"
+// #include "../include/agrah.h"
+// #include "../include/biparti.h"
+// #include "../include/visu.h"
 #include "../include/test_batterie.h"
 
 int main() {
