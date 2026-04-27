@@ -10,6 +10,7 @@ int main() {
     
     lancer_batterie_biparti();
     lancer_batterie_kparti();
+    lancer_batterie_hyper_kparti();
     
     printf("\n=== FIN DES TESTS ===\n");
 
