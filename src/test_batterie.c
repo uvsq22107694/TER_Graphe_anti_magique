@@ -73,27 +73,30 @@ void tester_hyper_kparti(int k, int n) {
     if (h->g->nb_sommets == total_sommets && h->g->n == M) {
         printf("[SUCCES] Structure creee avec %d sommets et %d hyper-aretes.\n", total_sommets, M);
         
-        // // Affichage optionnel pour verifier visuellement les 27 arêtes de l'exemple 3,3
-        // if (k == 4 && n == 2) {
-        //     printf("\n--- Affichage des hyper-aretes pour H_{3,3} ---\n");
-        //     for(int i = 0; i < h->g->n; i++) {
-        //         printf("  Hyper-arete %2d (Label %2d) : {", i, i + 1);
-        //         int first = 1;
-        //         for(int j = 0; j < h->g->nb_sommets; j++) {
-        //             if (h->g->matrice_incidence[i][j] == 1) {
-        //                 if (!first) printf(", ");
-        //                 printf("V%d", h->sommets[j]->id);
-        //                 first = 0;
-        //             }
-        //         }
-        //         printf("}\n");
-        //     }
-        // }
+        // Calcul des sommes pour chaque sommet
+        calculer_sommes_sommets(h->g, h->sommets);
+        
+        printf("\n--- Valeurs (sommes) de chaque sommet ---\n");
+        for (int p = 0; p < k; p++) {
+            printf("Partition %d : ", p + 1);
+            for (int i = 0; i < n; i++) {
+                Sommet* s = h->sommets[p * n + i];
+                printf("V%d=%d ", s->id, s->valeur);
+            }
+            printf("\n");
+        }        
+        // Vérification de la propriété anti-magique
+        if (est_antimagique(h->sommets, total_sommets)) {
+            printf("--> [RESULTAT] L'hypergraphe EST antimagique !\n");
+        } else {
+            printf("--> [RESULTAT] L'hypergraphe N'EST PAS antimagique (des doublons existent).\n");
+        }
     } else {
         printf("[ECHEC] Dimensions incorrectes. Sommets: %d (attendu %d), Aretes: %d (attendu %d).\n", 
                h->g->nb_sommets, total_sommets, h->g->n, M);
     }
     
+    printf("\n\n");
     liberer_hypergraphe(h);
 }
 
@@ -102,8 +105,7 @@ void tester_hyper_kparti(int k, int n) {
  */
 void lancer_batterie_hyper_kparti() {
     printf("\n==== BATTERIE DE TESTS HYPERGRAPHES K-PARTIS ====\n");
-    tester_hyper_kparti(4, 2); // Petit exemple pour valider que ça ne plante pas
-    tester_hyper_kparti(3, 3); // L'exemple dont on a parle avec affichage complet
+    tester_hyper_kparti(8, 2);
     printf("=================================================\n");
 }
 
