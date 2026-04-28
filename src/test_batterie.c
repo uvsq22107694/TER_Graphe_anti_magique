@@ -70,6 +70,22 @@ void tester_hyper_kparti(int k, int n) {
     if (h->g->nb_sommets == total_sommets && h->g->n == M) {
         printf("[SUCCES] Structure creee avec %d sommets et %d hyper-aretes.\n", total_sommets, M);
         
+        printf("\n--- Liste des aretes ---\n");
+        for (int i = 0; i < h->g->n; i++) {
+            printf("Arete %d : { ", i + 1);
+            int premier = 1;
+            for (int v = 0; v < h->g->nb_sommets; v++) {
+                if (h->g->matrice_incidence[i][v] == 1) {
+                    if (!premier) printf(", ");
+                    char part_name = 'A' + (v / n);
+                    int part_idx = (v % n) + 1;
+                    printf("%c%d", part_name, part_idx);
+                    premier = 0;
+                }
+            }
+            printf(" }\n");
+        }
+
         // Calcul des sommes pour chaque sommet
         calculer_sommes_sommets(h->g, h->sommets);
         
@@ -97,12 +113,14 @@ void tester_hyper_kparti(int k, int n) {
     liberer_hypergraphe(h);
 }
 
+
+
 /*
  * Lance une batterie de tests hypergraphes k-partis.
  */
 void lancer_batterie_hyper_kparti() {
     printf("\n==== BATTERIE DE TESTS HYPERGRAPHES K-PARTIS ====\n");
-    tester_hyper_kparti(8, 2);
+    tester_hyper_kparti(4, 13);
     printf("=================================================\n");
 }
 

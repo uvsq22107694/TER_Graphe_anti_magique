@@ -8,8 +8,8 @@
 int main() {
     printf("\n=== DÉBUT DES TESTS D'ÉTIQUETAGE ANTIMAGIQUE ===\n");
     
-    lancer_batterie_biparti();
-    lancer_batterie_kparti();
+    // lancer_batterie_biparti();
+    // lancer_batterie_kparti();
     lancer_batterie_hyper_kparti();
     
     printf("\n=== FIN DES TESTS ===\n");
