@@ -15,6 +15,20 @@ typedef struct {
 } HyperGrapheKParti;
 
 /*
+ * Construit le cas de base : un hypergraphe biparti (k=2) avec n sommets par partie.
+ * Les arêtes sont générées dans l'ordre lexicographique.
+ */
+HyperGrapheKParti* construire_hypergraphe_biparti(int n);
+
+/*
+ * Prend un hypergraphe k-parti existant et lui ajoute une partition (k devient k+1).
+ * Utilise l'algorithme de duplication : chaque ancienne arête est dupliquée n fois
+ * et on lui associe les n nouveaux sommets.
+ * Retourne le nouvel hypergraphe (l'ancien doit être libéré par l'appelant).
+ */
+HyperGrapheKParti* ajouter_partition_hypergraphe(HyperGrapheKParti* h);
+
+/*
  * Construit un hypergraphe complet k-parti où chaque partie contient n sommets.
  * Une hyper-arête contient exactement 1 sommet de chaque partie (donc k sommets par hyper-arête).
  * Le nombre total d'hyper-arêtes générées sera M = n^k.
@@ -25,6 +39,8 @@ typedef struct {
  * Retourne la structure HyperGrapheKParti créée (contenant graphe et sommets) ou NULL en cas d'erreur.
  */
 HyperGrapheKParti* construire_hypergraphe_kparti(int k, int n);
+
+
 
 /*
  * Libère proprement la mémoire d'un HyperGrapheKParti et de tout son contenu.
