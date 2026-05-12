@@ -6,6 +6,8 @@
 #include "../include/kparti.h"
 #include "../include/hyper_kparti.h"
 #include "../include/test_batterie.h"
+#include "../include/hypergraphe.h"
+#include "../include/algo_antimagique.h"
 
 /*
  * Fonction utilitaire de test pour les graphes bipartis.
@@ -243,5 +245,90 @@ void lancer_batterie_kparti() {
     int tailles3[] = {3, 5, 7, 9};
     tester_kparti(tailles3, 4);
     
+    printf("================================================\n");
+}
+
+/*
+ * Lance une batterie de tests empiriques sur des hypergraphes (calculs et swaps).
+ */
+void lancer_batterie_hypergraphe() {
+    printf("\n==== BATTERIE DE TESTS HYPERGRAPHES (Comparaison Algos) ====\n");
+    
+    int configs[][2] = {
+        {4, 4},
+        {5, 6},
+        {6, 10},
+        {8, 11},
+        {10, 15},
+        {15, 20}
+    };
+    int nb_configs = sizeof(configs) / sizeof(configs[0]);
+    
+    for (int c = 0; c < nb_configs; c++) {
+        int m = configs[c][0];
+        int n = configs[c][1];
+        
+        printf("\n--- Test Hypergraphe m=%d sommets, n=%d aretes ---\n", m, n);
+        
+        Sommet** sommets = NULL;
+        aGraphe* g = generer_hypergraphe_valide(m, n, &sommets);
+        if (!g) {
+            printf("[ECHEC] Generation hypergraphe formellement valide echouee.\n");
+            continue;
+        }
+        
+        // Backup de la matrice d'incidence initiale
+        int** backup_incidence = malloc(n * sizeof(int*));
+        for (int i = 0; i < n; i++) {
+            backup_incidence[i] = g->matrice_incidence[i];
+        }
+        
+        #define RESET_MATRICE() do { for (int i = 0; i < n; i++) g->matrice_incidence[i] = backup_incidence[i]; } while(0)
+        
+        int nb_swaps = 0;
+        clock_t start, end;
+        double temps;
+        
+        // --- 1. Algo Naif Aleatoire ---
+        RESET_MATRICE();
+        start = clock();
+        int res_alea = algo_aleatoire(g, sommets, 50000, &nb_swaps);
+        end = clock();
+        temps = ((double)(end - start)) / CLOCKS_PER_SEC;
+        if (res_alea) {
+            printf("[Aleatoire]   SUCCES en %.4fs avec %d swaps\n", temps, nb_swaps);
+        } else {
+            printf("[Aleatoire]   ECHEC  apres %.4fs avec %d swaps (max_iter)\n", temps, nb_swaps);
+        }
+        
+        // --- 2. Algo Force Brute ---
+        RESET_MATRICE();
+        start = clock();
+        int res_fb = algo_force_brute(g, sommets, &nb_swaps);
+        end = clock();
+        temps = ((double)(end - start)) / CLOCKS_PER_SEC;
+        if (n <= 11) {
+            if (res_fb) {
+                printf("[Force Brute] SUCCES en %.4fs avec %d swaps\n", temps, nb_swaps);
+            } else {
+                printf("[Force Brute] ECHEC  (Graphe potentiellement non-antimagique)\n");
+            }
+        }
+        
+        // --- 3. Algo Heuristique ---
+        RESET_MATRICE();
+        start = clock();
+        int res_heu = algo_heuristique(g, sommets, 50000, &nb_swaps);
+        end = clock();
+        temps = ((double)(end - start)) / CLOCKS_PER_SEC;
+        if (res_heu) {
+            printf("[Heuristique] SUCCES en %.4fs avec %d swaps\n", temps, nb_swaps);
+        } else {
+            printf("[Heuristique] ECHEC  apres %.4fs avec %d swaps (max_iter)\n", temps, nb_swaps);
+        }
+        
+        free(backup_incidence);
+        liberer_graphe(g, sommets, m);
+    }
     printf("================================================\n");
 }
