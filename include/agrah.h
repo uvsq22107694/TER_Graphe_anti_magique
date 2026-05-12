@@ -6,7 +6,7 @@
  */
 typedef struct Sommet {
     int id;          // Identifiant unique du sommet
-    int valeur;      // Valeur représentant la somme des labels des arêtes connectées, calculée plus tard
+    long long valeur;      // Valeur représentant la somme des labels des arêtes connectées, calculée plus tard
 } Sommet;
 
 /*

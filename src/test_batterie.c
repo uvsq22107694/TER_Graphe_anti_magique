@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "../include/agrah.h"
 #include "../include/biparti.h"
 #include "../include/kparti.h"
@@ -68,23 +69,23 @@ void tester_hyper_kparti(int k, int n) {
     
     // Verifications basiques
     if (h->g->nb_sommets == total_sommets && h->g->n == M) {
-        printf("[SUCCES] Structure creee avec %d sommets et %d hyper-aretes.\n", total_sommets, M);
+        // printf("[SUCCES] Structure creee avec %d sommets et %d hyper-aretes.\n", total_sommets, M);
         
-        printf("\n--- Liste des aretes ---\n");
-        for (int i = 0; i < h->g->n; i++) {
-            printf("Arete %d : { ", i + 1);
-            int premier = 1;
-            for (int v = 0; v < h->g->nb_sommets; v++) {
-                if (h->g->matrice_incidence[i][v] == 1) {
-                    if (!premier) printf(", ");
-                    char part_name = 'A' + (v / n);
-                    int part_idx = (v % n) + 1;
-                    printf("%c%d", part_name, part_idx);
-                    premier = 0;
-                }
-            }
-            printf(" }\n");
-        }
+        // printf("\n--- Liste des aretes ---\n");
+        // for (int i = 0; i < h->g->n; i++) {
+        //     printf("Arete %d : { ", i + 1);
+        //     int premier = 1;
+        //     for (int v = 0; v < h->g->nb_sommets; v++) {
+        //         if (h->g->matrice_incidence[i][v] == 1) {
+        //             if (!premier) printf(", ");
+        //             char part_name = 'A' + (v / n);
+        //             int part_idx = (v % n) + 1;
+        //             printf("%c%d", part_name, part_idx);
+        //             premier = 0;
+        //         }
+        //     }
+        //     printf(" }\n");
+        // }
 
         // Calcul des sommes pour chaque sommet
         calculer_sommes_sommets(h->g, h->sommets);
@@ -94,7 +95,7 @@ void tester_hyper_kparti(int k, int n) {
             printf("Partition %d : ", p + 1);
             for (int i = 0; i < n; i++) {
                 Sommet* s = h->sommets[p * n + i];
-                printf("V%d=%d ", s->id, s->valeur);
+                printf("V%d=%lld ", s->id, s->valeur);
             }
             printf("\n");
         }        
@@ -115,12 +116,80 @@ void tester_hyper_kparti(int k, int n) {
 
 
 
+void tester_tous_les_hypergraphes() {
+    printf("\n--- LANCEMENT DU TEST INFINI DES HYPERGRAPHES K-PARTIS ---\n");
+    int max_time_seconds = 5; // 30 secondes
+
+    for (int n = 2; ; n++) {
+
+
+        int k = 2;
+        HyperGrapheKParti* h = construire_hypergraphe_biparti(n);
+        if (h == NULL) {
+            printf("n=%d k=%d ERREUR (Échec allocation)\n", n, k);
+            return;
+        }
+
+        calculer_sommes_sommets(h->g, h->sommets);
+        if (!est_antimagique(h->sommets, h->k * h->n)) {
+            inverser_derniere_et_milieu_matrice(h->g, n);
+            calculer_sommes_sommets(h->g, h->sommets);
+        }
+        
+        if (!est_antimagique(h->sommets, h->k * h->n)) {
+            printf("n=%d k=%d ERREUR\n", n, k);
+            printf("Cet hypergraphe ne marche pas. Arrêt.\n");
+            liberer_hypergraphe(h);
+            return;
+        } else {
+            printf("n=%d k=%d OK\n", n, k);
+        }
+
+        while (1) {
+            time_t start_time = time(NULL);
+
+            k++;
+            HyperGrapheKParti* next_h = ajouter_partition_hypergraphe(h);
+            if (next_h == NULL) {
+                printf("n=%d k=%d ERREUR (Échec allocation)\n", n, k);
+                liberer_hypergraphe(h);
+                return;
+            }
+            liberer_hypergraphe(h);
+            h = next_h;
+
+            calculer_sommes_sommets(h->g, h->sommets);
+            if (!est_antimagique(h->sommets, h->k * h->n)) {
+                inverser_derniere_et_milieu_matrice(h->g, n);
+                calculer_sommes_sommets(h->g, h->sommets);
+            }
+
+            time_t current_time = time(NULL);
+            if (difftime(current_time, start_time) > max_time_seconds) {
+                printf("n=%d k=%d Time out\n", n, k);
+                liberer_hypergraphe(h);
+                break; // Passe au n suivant
+            }
+
+            if (!est_antimagique(h->sommets, h->k * h->n)) {
+                printf("n=%d k=%d ERREUR\n", n, k);
+                printf("Cet hypergraphe ne marche pas. Arrêt.\n");
+                liberer_hypergraphe(h);
+                return;
+            } else {
+                printf("n=%d k=%d Validé\n", n, k);
+            }
+        }
+
+    }
+}
+
 /*
  * Lance une batterie de tests hypergraphes k-partis.
  */
 void lancer_batterie_hyper_kparti() {
     printf("\n==== BATTERIE DE TESTS HYPERGRAPHES K-PARTIS ====\n");
-    tester_hyper_kparti(4, 13);
+    tester_tous_les_hypergraphes();
     printf("=================================================\n");
 }
 

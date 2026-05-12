@@ -41,6 +41,12 @@ HyperGrapheKParti* ajouter_partition_hypergraphe(HyperGrapheKParti* h);
 HyperGrapheKParti* construire_hypergraphe_kparti(int k, int n);
 
 
+/*
+ * Fonction pour inverser la dernière arête avec l'arête qui prend
+ * le sommet du milieu pour la dernière partition (utilisé quand n est impair).
+ * S'applique directement sur la matrice d'incidence.
+ */
+void inverser_derniere_et_milieu_matrice(aGraphe* g, int n);
 
 /*
  * Libère proprement la mémoire d'un HyperGrapheKParti et de tout son contenu.

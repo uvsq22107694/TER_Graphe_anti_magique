@@ -134,8 +134,11 @@ HyperGrapheKParti* ajouter_partition_hypergraphe(HyperGrapheKParti* h) {
  * le sommet du milieu pour la dernière partition (utilisé quand n est impair).
  * S'applique directement sur la matrice d'incidence.
  */
-static void inverser_derniere_et_milieu_matrice(aGraphe* g, int n) {
-    if (n % 2 == 0) return; // Uniquement pour n impair
+void inverser_derniere_et_milieu_matrice(aGraphe* g, int n) {
+    if (n % 2 == 0) {
+        printf("[DEBUG] n est pair (%d), inversion non effectuee\n", n);
+        return;
+    } // Uniquement pour n impair
 
     int index_derniere = g->n - 1; // g->n est le nombre d'arêtes M
     int index_milieu = g->n - 1 - (n / 2);

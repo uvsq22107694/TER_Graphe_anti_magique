@@ -147,7 +147,7 @@ int est_antimagique(Sommet** tableau_tous_les_sommets, int nb_total_sommets) {
     }
 
     // 1. Allouer un tableau temporaire pour stocker les valeurs
-    int* valeurs_sommes = (int*)malloc(nb_total_sommets * sizeof(int));
+    long long* valeurs_sommes = (long long*)malloc(nb_total_sommets * sizeof(long long));
     if (valeurs_sommes == NULL) {
         fprintf(stderr, "Erreur d'allocation memoire dans est_antimagique.\n");
         return 0;
@@ -163,13 +163,14 @@ int est_antimagique(Sommet** tableau_tous_les_sommets, int nb_total_sommets) {
     }
 
     // 3. Trier le tableau de sommes de façon croissante avec qsort standard
-    qsort(valeurs_sommes, nb_total_sommets, sizeof(int), comparer_entiers);
+    qsort(valeurs_sommes, nb_total_sommets, sizeof(long long), comparer_entiers);
 
     // 4. Parcourir le tableau trié pour vérifier l'absence totale de doublons
     int aucun_doublon = 1; // 1 = Vrai
     for (int i = 1; i < nb_total_sommets; i++) {
         // En comparant la case i avec la case précédente i-1
         if (valeurs_sommes[i] == valeurs_sommes[i - 1]) {
+            // printf("[DEBUG] Doublon trouve : %d == %d\n", valeurs_sommes[i], valeurs_sommes[i - 1]);
             aucun_doublon = 0; // On a trouvé une égalité (doublon)
             break;
         }
