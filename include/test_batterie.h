@@ -17,6 +17,12 @@ void lancer_batterie_biparti();
  */
 void tester_kparti(int* tailles, int k);
 
+
+/*
+ * Lance une série de tests sur différents hypergraphes k-partis.
+ */
+void lancer_batterie_hyper_kparti();
+
 /*
  * Lance une série de tests sur différents graphes k-partis.
  */
