@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include "../include/agrah.h"
 #include "../include/biparti.h"
 #include "../include/kparti.h"
@@ -120,10 +121,10 @@ void tester_hyper_kparti(int k, int n) {
 
 void tester_tous_les_hypergraphes() {
     printf("\n--- LANCEMENT DU TEST INFINI DES HYPERGRAPHES K-PARTIS ---\n");
-    int max_time_seconds = 5; // 30 secondes
 
     for (int n = 2; ; n++) {
 
+        printf("\nTest pour n=%d\n", n);
 
         int k = 2;
         HyperGrapheKParti* h = construire_hypergraphe_biparti(n);
@@ -148,9 +149,14 @@ void tester_tous_les_hypergraphes() {
         }
 
         while (1) {
-            time_t start_time = time(NULL);
-
             k++;
+
+            if (pow(n, k) > 10000000) {
+                liberer_hypergraphe(h);
+                printf("Taille très grande, n suivant.\n");
+                break;
+            }
+
             HyperGrapheKParti* next_h = ajouter_partition_hypergraphe(h);
             if (next_h == NULL) {
                 printf("n=%d k=%d ERREUR (Échec allocation)\n", n, k);
@@ -166,20 +172,13 @@ void tester_tous_les_hypergraphes() {
                 calculer_sommes_sommets(h->g, h->sommets);
             }
 
-            time_t current_time = time(NULL);
-            if (difftime(current_time, start_time) > max_time_seconds) {
-                printf("n=%d k=%d Time out\n", n, k);
-                liberer_hypergraphe(h);
-                break; // Passe au n suivant
-            }
-
             if (!est_antimagique(h->sommets, h->k * h->n)) {
                 printf("n=%d k=%d ERREUR\n", n, k);
                 printf("Cet hypergraphe ne marche pas. Arrêt.\n");
                 liberer_hypergraphe(h);
                 return;
             } else {
-                printf("n=%d k=%d Validé\n", n, k);
+                printf("n=%d k=%d OK\n", n, k);
             }
         }
 
